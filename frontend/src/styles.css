@@ -525,15 +525,45 @@ table.camp tr.clickable { cursor: pointer; }
   .row.hero, .row.bottom, .row.funnel-row { grid-template-columns: 1fr; }
   .health { grid-template-columns: repeat(2, 1fr); }
 }
+/* Mobile nav: hamburger + off-canvas drawer (hidden on desktop) */
+.nav-toggle, .nav-backdrop { display: none; }
+.nav-toggle svg { width: 20px; height: 20px; }
 @media (max-width: 900px) {
   .app { grid-template-columns: 1fr; }
-  .sidebar { position: static; height: auto; }
-  .nav { overflow: visible; }
+  .sidebar {
+    position: fixed; top: 0; left: 0; bottom: 0; z-index: 60;
+    width: min(280px, 84vw); height: 100dvh;
+    transform: translateX(-100%); transition: transform .22s ease;
+    box-shadow: 0 0 40px -10px rgba(0,0,0,.9);
+  }
+  .app.nav-open .sidebar { transform: none; }
+  .nav-backdrop {
+    display: block; position: fixed; inset: 0; z-index: 55;
+    background: rgba(8,7,12,0.6); opacity: 0; pointer-events: none; transition: opacity .22s;
+  }
+  .app.nav-open .nav-backdrop { opacity: 1; pointer-events: auto; }
+  .nav-toggle { display: grid; flex: none; }
+  .topbar { padding: 12px 16px; gap: 12px; }
+  .content { padding: 20px 16px 36px; }
 }
 @media (max-width: 640px) {
   .kpi-grid.cols-6, .kpi-grid.cols-4 { grid-template-columns: repeat(2, 1fr); }
   .row.split { grid-template-columns: 1fr; }
   .filters .control .cap { display: none; }
+  /* Filters drop to their own row so the page title isn't squeezed */
+  .topbar { flex-wrap: wrap; }
+  .filters { margin-left: 0; width: 100%; }
+  .filters .dropdown { flex: 1 1 0; min-width: 0; }
+  .filters .control { width: 100%; justify-content: space-between; }
+  .filters .control > span:not(.cap) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  /* Pages without filters keep their lone icon buttons beside the title */
+  .topbar.no-filters { flex-wrap: nowrap; }
+  .topbar.no-filters .filters { width: auto; margin-left: auto; }
+  /* Multi-column card grids stack on phones */
+  .top-grid, .event-grid, .report-grid, .health-page, .fc-grid, .set-grid, .score-hero { grid-template-columns: 1fr; }
+  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+  .summary-banner { flex-wrap: wrap; }
+  .summary-banner .spacer { margin-left: 0; flex-wrap: wrap; gap: 14px 26px; }
 }
 
 /* Month selector (Reach chart) + Top-posts pagination */

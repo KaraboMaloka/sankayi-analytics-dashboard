@@ -25,7 +25,7 @@ function shell() {
 
   return `
     <div class="app">
-      <aside class="sidebar">
+      <aside class="sidebar" id="sidebar">
         <div class="brand">
           <div class="logo-disc" style="background-image:url('${logoUrl}')" role="img" aria-label="Sankayi Jazz Series logo"></div>
           <div>
@@ -42,8 +42,10 @@ function shell() {
           <button class="logout" type="button">${icons.logout} Log out</button>
         </div>
       </aside>
+      <div class="nav-backdrop" id="nav-backdrop"></div>
       <div class="main">
         <header class="topbar">
+          <button class="icon-btn nav-toggle" id="nav-toggle" type="button" aria-label="Open menu" aria-controls="sidebar" aria-expanded="false">${icons.menu}</button>
           <div class="page-title"><span class="eyebrow"></span><h1></h1></div>
           <div class="filters" id="filters">
             <div class="dropdown" id="dd-period">
@@ -84,7 +86,25 @@ async function renderView() {
   }
 }
 
+// ---- mobile nav drawer (the sidebar slides in below 900px) ----
+function setNavOpen(open) {
+  document.querySelector(".app")?.classList.toggle("nav-open", open);
+  document.getElementById("nav-toggle")?.setAttribute("aria-expanded", String(open));
+}
+
+function wireNavDrawer() {
+  document.getElementById("nav-toggle").addEventListener("click", () =>
+    setNavOpen(!document.querySelector(".app").classList.contains("nav-open"))
+  );
+  document.getElementById("nav-backdrop").addEventListener("click", () => setNavOpen(false));
+  // Tapping the current page's link doesn't fire hashchange, so close here too.
+  document.querySelector(".nav").addEventListener("click", (e) => {
+    if (e.target.closest(".nav-item")) setNavOpen(false);
+  });
+}
+
 async function navigate() {
+  setNavOpen(false);
   currentId = currentRouteId();
   const route = routeById(currentId);
   document.querySelector(".page-title .eyebrow").textContent = route.eyebrow;
@@ -97,6 +117,7 @@ async function navigate() {
   document.getElementById("dd-period").style.display = show ? "" : "none";
   document.getElementById("dd-event").style.display = show ? "" : "none";
   document.querySelector(".search-wrap").style.display = show ? "" : "none";
+  document.querySelector(".topbar").classList.toggle("no-filters", !show);
   syncControlLabels();
   await renderView();
 }
@@ -205,6 +226,7 @@ async function boot() {
 
   document.getElementById("app").innerHTML = shell();
   wireControls();
+  wireNavDrawer();
   document.querySelector(".logout").addEventListener("click", async () => {
     try { await api.logout(); } catch { /* revoke best-effort */ }
     clearToken();
@@ -221,6 +243,7 @@ async function boot() {
       renderView();
     });
     window.addEventListener("hashchange", () => { if (currentUser) navigate(); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") setNavOpen(false); });
   }
 
   if (!location.hash) location.hash = "#/" + DEFAULT_ROUTE;
