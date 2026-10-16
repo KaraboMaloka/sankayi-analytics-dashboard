@@ -1,0 +1,27 @@
+# Rust
+/backend/target/
+**/*.rs.bk
+Cargo.lock
+
+# Secrets — never commit real API tokens
+.env
+.env.local
+*.pem
+
+# Node (Phase 2 frontend)
+node_modules/
+dist/
+.vite/
+
+# Logs — may contain request errors with secrets
+logs/
+*.log
+
+# Local Claude settings
+.claude/settings.local.json
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
