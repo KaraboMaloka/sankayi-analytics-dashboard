@@ -31,13 +31,15 @@ export function drawAreaChart(root, id, points, opts = {}) {
   const svg = wrap.querySelector("svg");
   const NS = "http://www.w3.org/2000/svg";
   const W = 640, top = 14, baseY = 220, left = 42, right = 622;
-  const maxV = opts.max ?? (Math.max(...points.map((p) => p.value)) * 1.05 || 1);
+  const dataMax = Math.max(...points.map((p) => p.value));
+  const ticks = opts.ticks ?? niceTicks(dataMax);
+  // Scale must reach the top gridline, or that line and its label land above the chart.
+  const maxV = opts.max ?? (Math.max(dataMax * 1.05, ticks[ticks.length - 1]) || 1);
   const x = (i) => left + (i * (right - left)) / Math.max(points.length - 1, 1);
   const y = (v) => baseY - (v / maxV) * (baseY - top);
 
   // gridlines
   const grid = svg.querySelector(".grid");
-  const ticks = opts.ticks ?? niceTicks(maxV);
   ticks.forEach((v) => {
     const gy = y(v);
     const line = document.createElementNS(NS, "line");
@@ -102,8 +104,13 @@ export function drawAreaChart(root, id, points, opts = {}) {
   });
 }
 
+// Round steps (1, 2, 2.5, 5 × 10ⁿ) giving at most 5 intervals that cover max.
 function niceTicks(max) {
-  const step = Math.pow(10, Math.floor(Math.log10(max)));
-  const rounded = Math.ceil(max / step) * step;
-  return [0, rounded * 0.33, rounded * 0.66, rounded].map((v) => Math.round(v / 10) * 10);
+  if (!(max > 0)) return [0];
+  const mag = Math.max(1, Math.pow(10, Math.floor(Math.log10(max / 5))));
+  const step = [1, 2, 2.5, 5, 10].map((m) => m * mag)
+    .filter(Number.isInteger) // counts only: never a 2.5-ticket gridline
+    .find((s) => Math.ceil(max / s) <= 5);
+  const n = Math.ceil(max / step);
+  return Array.from({ length: n + 1 }, (_, i) => i * step);
 }

@@ -564,6 +564,9 @@ table.camp tr.clickable { cursor: pointer; }
   .stat-grid { grid-template-columns: repeat(2, 1fr); }
   .summary-banner { flex-wrap: wrap; }
   .summary-banner .spacer { margin-left: 0; flex-wrap: wrap; gap: 14px 26px; }
+  /* Charts scale down to ~half size on phones; enlarge axis text to stay ~9px on screen */
+  svg.area .axis-label { font-size: 19px; }
+  svg.area .xlabels { transform: translateY(6px); }
 }
 
 /* Month selector (Reach chart) + Top-posts pagination */
