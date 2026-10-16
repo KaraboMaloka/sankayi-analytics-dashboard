@@ -1,7 +1,6 @@
 # Rust
 /backend/target/
 **/*.rs.bk
-Cargo.lock
 
 # Secrets — never commit real API tokens
 .env
